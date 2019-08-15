@@ -44,7 +44,20 @@
 
 <div class="viewcode-block" id="PyRoombaAdapter"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter">[docs]</a><span class="k">class</span> <span class="nc">PyRoombaAdapter</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Adapter class for Rommba Open Interface</span>
+<span class="sd">    Adapter class for Roomba Open Interface</span>
+
+<span class="sd">    The constructor connects serial port and change the mode to safe mode</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        - port: Serial port string</span>
+<span class="sd">        - bau_rate (default=115200): bau rate of serial connection</span>
+<span class="sd">        - time_out_sec (default=1.0) : read time out of serial connection [sec]</span>
+<span class="sd">        - wheel_span_mm (default=235.0): wheel span of Roomba [mm]</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">        &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">CMD</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Start&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
            <span class="s2">&quot;Baud&quot;</span><span class="p">:</span> <span class="mi">129</span><span class="p">,</span>
@@ -55,6 +68,7 @@
            <span class="s2">&quot;Max&quot;</span><span class="p">:</span> <span class="mi">136</span><span class="p">,</span>
            <span class="s2">&quot;Drive&quot;</span><span class="p">:</span> <span class="mi">137</span><span class="p">,</span>
            <span class="s2">&quot;Sensors&quot;</span><span class="p">:</span> <span class="mi">142</span><span class="p">,</span>
+           <span class="s2">&quot;Seek Dock&quot;</span><span class="p">:</span> <span class="mi">143</span><span class="p">,</span>
            <span class="s2">&quot;Query List&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
            <span class="s2">&quot;Stream&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
            <span class="p">}</span>
@@ -71,46 +85,81 @@
         <span class="s2">&quot;MAX_VELOCITY&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="o">=</span><span class="mi">115200</span><span class="p">,</span> <span class="n">time_out</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">serial_con</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="p">,</span> <span class="n">time_out</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">=</span> <span class="mf">235.0</span>
-
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="o">=</span><span class="mi">115200</span><span class="p">,</span> <span class="n">time_out_sec</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">wheel_span_mm</span><span class="o">=</span><span class="mf">235.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">=</span> <span class="n">wheel_span_mm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_con</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="p">,</span> <span class="n">time_out_sec</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">change_mode_to_safe</span><span class="p">()</span>  <span class="c1"># default mode is safe mode</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># disconnect sequence</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span> <span class="c1"># move to passive mode</span>
-        <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<div class="viewcode-block" id="PyRoombaAdapter.__del__"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.__del__">[docs]</a>    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructor of PyRoombaAdapter class</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">serial_con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="sd">        The Destructor make Roomba move to passive mode and close serial connection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># disconnect sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>  <span class="c1"># move to passive mode</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serial_con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="PyRoombaAdapter.start_cleaning"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.start_cleaning">[docs]</a>    <span class="k">def</span> <span class="nf">start_cleaning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Start cleaning</span>
+<span class="sd">        Start the default cleaning</span>
 
-<span class="sd">        :return:</span>
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        - Changes mode to: Passive</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.start_cleaning()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Clean&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PyRoombaAdapter.start_max_cleaning"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.start_max_cleaning">[docs]</a>    <span class="k">def</span> <span class="nf">start_max_cleaning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Start Max cleaning</span>
+<span class="sd">        Start the max cleaning</span>
 
-<span class="sd">        :return:</span>
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        - Changes mode to: Passive</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.start_max_cleaning()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Max&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="PyRoombaAdapter.start_spot_cleaning"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.start_spot_cleaning">[docs]</a>    <span class="k">def</span> <span class="nf">start_spot_cleaning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Start Max cleaning</span>
+<span class="sd">        Start spot cleaning</span>
 
-<span class="sd">        :return:</span>
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        - Changes mode to: Passive</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.start_spot_cleaning()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Spot&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PyRoombaAdapter.start_seek_dock"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.start_seek_dock">[docs]</a>    <span class="k">def</span> <span class="nf">start_seek_dock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start seek dock</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        - Changes mode to: Passive</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.start_seek_dock()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Seek Dock&quot;</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">change_mode_to_safe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># send command</span>
@@ -133,28 +182,36 @@
             <span class="c1"># print(&quot;re:&quot;, self.serial_con.read())</span>
             <span class="c1"># sleep(0.5)</span>
 
-<div class="viewcode-block" id="PyRoombaAdapter.move"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cm_per_sec</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">deg_per_sec</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="PyRoombaAdapter.move"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.move">[docs]</a>    <span class="k">def</span> <span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">yaw_rate</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        cm_per_sec centimeters per second</span>
-<span class="sd">        deg_per_sec degrees per second</span>
-<span class="sd">        go() is equivalent to go(0,0)</span>
+<span class="sd">        control roomba at the velocity and the rotational speed (yaw rate)</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The Roomba keep a control command until receiving next command</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - velocity: velocity (m/sec)</span>
+<span class="sd">            - yaw_rate: yaw raete (rad/sec)</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.move(0, -10) # rotate to right side</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">deg_per_sec</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">yaw_rate</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;CCW&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;CW&#39;</span>
 
-        <span class="k">if</span> <span class="n">cm_per_sec</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># rotation</span>
-            <span class="n">rad_per_sec</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_per_sec</span><span class="p">)</span>
-            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">rad_per_sec</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">velocity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># rotation</span>
+            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">yaw_rate</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
             <span class="n">radius_mm</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">deg_per_sec</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">cm_per_sec</span>
+        <span class="k">elif</span> <span class="n">yaw_rate</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
             <span class="n">radius_mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PARAMS</span><span class="p">[</span><span class="s2">&quot;STRAIGHT_RADIUS&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">cm_per_sec</span>
-            <span class="n">rad_per_sec</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg_per_sec</span><span class="p">)</span>
-            <span class="n">radius_mm</span> <span class="o">=</span> <span class="n">vel_mm_sec</span> <span class="o">/</span> <span class="n">rad_per_sec</span>
+            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
+            <span class="n">radius_mm</span> <span class="o">=</span> <span class="n">vel_mm_sec</span> <span class="o">/</span> <span class="n">yaw_rate</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_drive_cmd</span><span class="p">(</span><span class="n">vel_mm_sec</span><span class="p">,</span> <span class="n">radius_mm</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span></div>
 

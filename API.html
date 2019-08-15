@@ -37,56 +37,129 @@
 <p>A Python module for Roomba Open Interface</p>
 <dl class="class">
 <dt id="pyroombaadapter.PyRoombaAdapter">
-<em class="property">class </em><code class="descclassname">pyroombaadapter.</code><code class="descname">PyRoombaAdapter</code><span class="sig-paren">(</span><em>port</em>, <em>bau_rate=115200</em>, <em>time_out=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adapter class for Rommba Open Interface</p>
+<em class="property">class </em><code class="descclassname">pyroombaadapter.</code><code class="descname">PyRoombaAdapter</code><span class="sig-paren">(</span><em>port</em>, <em>bau_rate=115200</em>, <em>time_out_sec=1.0</em>, <em>wheel_span_mm=235.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adapter class for Roomba Open Interface</p>
+<p>The constructor connects serial port and change the mode to safe mode</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>port: Serial port string</li>
+<li>bau_rate (default=115200): bau rate of serial connection</li>
+<li>time_out_sec (default=1.0) : read time out of serial connection [sec]</li>
+<li>wheel_span_mm (default=235.0): wheel span of Roomba [mm]</li>
+</ul>
+</dd>
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.__del__">
+<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.__del__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.__del__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructor of PyRoombaAdapter class</p>
+<p>The Destructor make Roomba move to passive mode and close serial connection</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pyroombaadapter.PyRoombaAdapter.move">
-<code class="descname">move</code><span class="sig-paren">(</span><em>cm_per_sec=0</em>, <em>deg_per_sec=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.move" title="Permalink to this definition">¶</a></dt>
-<dd><p>cm_per_sec centimeters per second
-deg_per_sec degrees per second
-go() is equivalent to go(0,0)</p>
+<code class="descname">move</code><span class="sig-paren">(</span><em>velocity</em>, <em>yaw_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>control roomba at the velocity and the rotational speed (yaw rate)</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>The Roomba keep a control command until receiving next command</dd>
+<dt>Args:</dt>
+<dd><ul class="first last simple">
+<li>velocity: velocity (m/sec)</li>
+<li>yaw_rate: yaw raete (rad/sec)</li>
+</ul>
+</dd>
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># rotate to right side</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyroombaadapter.PyRoombaAdapter.start_cleaning">
 <code class="descname">start_cleaning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.start_cleaning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.start_cleaning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start cleaning</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dd><p>Start the default cleaning</p>
+<ul class="simple">
+<li>Available in modes: Passive, Safe, or Full</li>
+<li>Changes mode to: Passive</li>
+</ul>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">start_cleaning</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyroombaadapter.PyRoombaAdapter.start_max_cleaning">
 <code class="descname">start_max_cleaning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.start_max_cleaning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.start_max_cleaning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start Max cleaning</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dd><p>Start the max cleaning</p>
+<ul class="simple">
+<li>Available in modes: Passive, Safe, or Full</li>
+<li>Changes mode to: Passive</li>
+</ul>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">start_max_cleaning</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.start_seek_dock">
+<code class="descname">start_seek_dock</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.start_seek_dock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.start_seek_dock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start seek dock</p>
+<ul class="simple">
+<li>Available in modes: Passive, Safe, or Full</li>
+<li>Changes mode to: Passive</li>
+</ul>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">start_seek_dock</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pyroombaadapter.PyRoombaAdapter.start_spot_cleaning">
 <code class="descname">start_spot_cleaning</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.start_spot_cleaning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.start_spot_cleaning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start Max cleaning</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
+<dd><p>Start spot cleaning</p>
+<ul class="simple">
+<li>Available in modes: Passive, Safe, or Full</li>
+<li>Changes mode to: Passive</li>
+</ul>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">start_spot_cleaning</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
