@@ -6,10 +6,14 @@
 Welcome to PyRoombaAdapter's documentation!
 ===========================================
 
+.. include:: README.rst
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   API
+   GitHub <https://github.com/AtsushiSakai/PyRoombaAdapter/>
 
 
 Indices and tables
