@@ -63,14 +63,19 @@
            <span class="s2">&quot;Baud&quot;</span><span class="p">:</span> <span class="mi">129</span><span class="p">,</span>
            <span class="s2">&quot;Safe&quot;</span><span class="p">:</span> <span class="mi">131</span><span class="p">,</span>
            <span class="s2">&quot;Full&quot;</span><span class="p">:</span> <span class="mi">132</span><span class="p">,</span>
+           <span class="s2">&quot;Power&quot;</span><span class="p">:</span> <span class="mi">133</span><span class="p">,</span>
            <span class="s2">&quot;Spot&quot;</span><span class="p">:</span> <span class="mi">134</span><span class="p">,</span>
            <span class="s2">&quot;Clean&quot;</span><span class="p">:</span> <span class="mi">135</span><span class="p">,</span>
            <span class="s2">&quot;Max&quot;</span><span class="p">:</span> <span class="mi">136</span><span class="p">,</span>
            <span class="s2">&quot;Drive&quot;</span><span class="p">:</span> <span class="mi">137</span><span class="p">,</span>
+           <span class="s2">&quot;Moters&quot;</span><span class="p">:</span> <span class="mi">138</span><span class="p">,</span>
            <span class="s2">&quot;Sensors&quot;</span><span class="p">:</span> <span class="mi">142</span><span class="p">,</span>
            <span class="s2">&quot;Seek Dock&quot;</span><span class="p">:</span> <span class="mi">143</span><span class="p">,</span>
+           <span class="s2">&quot;PWM Moters&quot;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span>
+           <span class="s2">&quot;Drive Direct&quot;</span><span class="p">:</span> <span class="mi">145</span><span class="p">,</span>
+           <span class="s2">&quot;Drive PWM&quot;</span><span class="p">:</span> <span class="mi">146</span><span class="p">,</span>
            <span class="s2">&quot;Query List&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
-           <span class="s2">&quot;Stream&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
+           <span class="s2">&quot;Stream&quot;</span><span class="p">:</span> <span class="mi">148</span><span class="p">,</span>
            <span class="p">}</span>
 
     <span class="n">Packet_ID</span> <span class="o">=</span> <span class="p">{</span>
@@ -88,6 +93,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="o">=</span><span class="mi">115200</span><span class="p">,</span> <span class="n">time_out_sec</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">wheel_span_mm</span><span class="o">=</span><span class="mf">235.0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">=</span> <span class="n">wheel_span_mm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">serial_con</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connect_serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="p">,</span> <span class="n">time_out_sec</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">change_mode_to_safe</span><span class="p">()</span>  <span class="c1"># default mode is safe mode</span>
 
 <div class="viewcode-block" id="PyRoombaAdapter.__del__"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.__del__">[docs]</a>    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -161,17 +167,71 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Seek Dock&quot;</span><span class="p">])</span></div>
 
-    <span class="k">def</span> <span class="nf">change_mode_to_safe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># send command</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Safe&quot;</span><span class="p">])</span>
+<div class="viewcode-block" id="PyRoombaAdapter.change_mode_to_passive"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.change_mode_to_passive">[docs]</a>    <span class="k">def</span> <span class="nf">change_mode_to_passive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change mode to passive mode</span>
 
+<span class="sd">        Roomba beeps once to acknowledge it is starting from “off” mode.</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span></div>
+
+        <span class="c1"># TODO implement</span>
         <span class="c1"># check mode</span>
         <span class="c1"># self.request_data([self.Packet_ID[&quot;OI Mode&quot;]])</span>
 
-        <span class="c1"># self._send_cmd(self.CMD[&quot;Start&quot;])</span>
-        <span class="c1"># self._send_cmd(self.CMD[&quot;Start&quot;])</span>
-        <span class="c1"># self._send_cmd(self.CMD[&quot;Safe&quot;])</span>
+<div class="viewcode-block" id="PyRoombaAdapter.change_mode_to_safe"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.change_mode_to_safe">[docs]</a>    <span class="k">def</span> <span class="nf">change_mode_to_safe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change mode to safe mode</span>
+
+<span class="sd">        Safe mode turns off all LEDs.</span>
+<span class="sd">        If a safety condition occurs, Roomba reverts automatically to Passive mode.</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># send command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Safe&quot;</span><span class="p">])</span></div>
+
+        <span class="c1"># TODO implement</span>
+        <span class="c1"># check mode</span>
+        <span class="c1"># self.request_data([self.Packet_ID[&quot;OI Mode&quot;]])</span>
+
+<div class="viewcode-block" id="PyRoombaAdapter.change_mode_to_full"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.change_mode_to_full">[docs]</a>    <span class="k">def</span> <span class="nf">change_mode_to_full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change mode to full mode</span>
+
+<span class="sd">        Full mode turns off the cliff, wheel-drop and internal charger safety features.</span>
+<span class="sd">        In Full mode, Roomba executes any command that you send it, even if the internal charger is plugged in,</span>
+<span class="sd">        or command triggers a cliff or wheel drop condition.</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># send command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Safe&quot;</span><span class="p">])</span></div>
+
+        <span class="c1"># TODO implement</span>
+        <span class="c1"># check mode</span>
+        <span class="c1"># self.request_data([self.Packet_ID[&quot;OI Mode&quot;]])</span>
+
+<div class="viewcode-block" id="PyRoombaAdapter.turn_off_power"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.turn_off_power">[docs]</a>    <span class="k">def</span> <span class="nf">turn_off_power</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Turn off power of Roomba</span>
+
+<span class="sd">        The mode change to passive mode.</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
+<span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.turn_off_power()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># send command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Start&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Power&quot;</span><span class="p">])</span></div>
 
     <span class="k">def</span> <span class="nf">request_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_id_list</span><span class="p">):</span>
 
@@ -189,14 +249,27 @@
 <span class="sd">        Note:</span>
 <span class="sd">            The Roomba keep a control command until receiving next command</span>
 
+<span class="sd">        - Available in modes: Safe or Full</span>
+<span class="sd">        - Changes mode to: No Change</span>
+<span class="sd">        - Velocity (-500 – 500 mm/s)</span>
+<span class="sd">        - Radius (-2000 – 2000 mm)</span>
+<span class="sd">        - Special cases:</span>
+<span class="sd">            - Straight = 32768 or 32767 = hex 8000 or 7FFF</span>
+<span class="sd">            - Turn in place clockwise = -1</span>
+<span class="sd">            - Turn in place counter-clockwise = 1</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            - velocity: velocity (m/sec)</span>
-<span class="sd">            - yaw_rate: yaw raete (rad/sec)</span>
+<span class="sd">            - yaw_rate: yaw rate (rad/sec)</span>
 
 <span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; import time</span>
 <span class="sd">            &gt;&gt;&gt; PORT = &quot;/dev/ttyUSB0&quot;</span>
 <span class="sd">            &gt;&gt;&gt; adapter = PyRoombaAdapter(PORT)</span>
-<span class="sd">            &gt;&gt;&gt; adapter.move(0, -10) # rotate to right side</span>
+<span class="sd">            &gt;&gt;&gt; adapter.move(0, np.rad2deg(-10)) # rotate to right side</span>
+<span class="sd">            &gt;&gt;&gt; time.sleep(1.0) # keep rotate</span>
+<span class="sd">            &gt;&gt;&gt; adapter.move(0.1, 0.0) # move straight with 10cm/sec</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">yaw_rate</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;CCW&#39;</span>
@@ -207,18 +280,31 @@
             <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">yaw_rate</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
             <span class="n">radius_mm</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">elif</span> <span class="n">yaw_rate</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
+            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">*</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
             <span class="n">radius_mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PARAMS</span><span class="p">[</span><span class="s2">&quot;STRAIGHT_RADIUS&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">/</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
+            <span class="n">vel_mm_sec</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">*</span> <span class="mf">1000.0</span>  <span class="c1"># m/s -&gt; mm/s</span>
             <span class="n">radius_mm</span> <span class="o">=</span> <span class="n">vel_mm_sec</span> <span class="o">/</span> <span class="n">yaw_rate</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send_drive_cmd</span><span class="p">(</span><span class="n">vel_mm_sec</span><span class="p">,</span> <span class="n">radius_mm</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_drive_cmd</span><span class="p">(</span><span class="n">vel_mm_sec</span><span class="p">,</span> <span class="n">radius_mm</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_send_drive_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roomba_mm_sec</span><span class="p">,</span> <span class="n">roomba_radius_mm</span><span class="p">,</span> <span class="n">turn_dir</span><span class="o">=</span><span class="s1">&#39;CCW&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="PyRoombaAdapter.send_drive_cmd"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.send_drive_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">send_drive_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">roomba_mm_sec</span><span class="p">,</span> <span class="n">roomba_radius_mm</span><span class="p">,</span> <span class="n">turn_dir</span><span class="o">=</span><span class="s1">&#39;CCW&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        send drive command</span>
+
+<span class="sd">        This command controls Roomba’s drive wheels.</span>
+<span class="sd">        The radius is measured from the center of the turning circle to the center of Roomba.</span>
+<span class="sd">        A Drive command with a positive velocity and a positive radius makes Roomba drive forward while turning toward the left.</span>
+<span class="sd">        A negative radius makes Roomba turn toward the right.</span>
+<span class="sd">        Special cases for the radius make Roomba turn in place or drive straight.</span>
+<span class="sd">        A negative velocity makes Roomba drive backward.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            - roomba_mm_sec: the average velocity of the drive wheels in millimeters per second (mm/s)</span>
+<span class="sd">            - roomba_radius_mm: the radius in millimeters at which Roomba will turn.</span>
+<span class="sd">            - turn_dir: turning direction, it should be CW:clock wise or CCW: counter clock wise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">roomba_mm_sec</span><span class="p">,</span> <span class="n">roomba_radius_mm</span><span class="p">)</span>
+        <span class="c1"># print(roomba_mm_sec, roomba_radius_mm, turn_dir)</span>
 
         <span class="n">roomba_mm_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjust_velocity</span><span class="p">(</span><span class="n">roomba_mm_sec</span><span class="p">)</span>
         <span class="n">velHighVal</span><span class="p">,</span> <span class="n">velLowVal</span> <span class="o">=</span> <span class="n">byte_tool</span><span class="o">.</span><span class="n">get_2_bytes</span><span class="p">(</span><span class="n">roomba_mm_sec</span><span class="p">)</span>
@@ -227,9 +313,7 @@
         <span class="n">radiusHighVal</span><span class="p">,</span> <span class="n">radiusLowVal</span> <span class="o">=</span> <span class="n">byte_tool</span><span class="o">.</span><span class="n">get_2_bytes</span><span class="p">(</span><span class="n">roomba_radius_mm</span><span class="p">)</span>
 
         <span class="c1"># send these bytes and set the stored velocities</span>
-        <span class="c1"># self._send_cmd(self.CMD[&quot;Start&quot;])</span>
-        <span class="c1"># self._send_cmd(self.CMD[&quot;Safe&quot;])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Drive&quot;</span><span class="p">],</span> <span class="n">velHighVal</span><span class="p">,</span> <span class="n">velLowVal</span><span class="p">,</span> <span class="n">radiusHighVal</span><span class="p">,</span> <span class="n">radiusLowVal</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Drive&quot;</span><span class="p">],</span> <span class="n">velHighVal</span><span class="p">,</span> <span class="n">velLowVal</span><span class="p">,</span> <span class="n">radiusHighVal</span><span class="p">,</span> <span class="n">radiusLowVal</span><span class="p">])</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_connect_serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="p">,</span> <span class="n">time_out</span><span class="p">):</span>
@@ -277,20 +361,19 @@
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
     <span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
     <span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">start_max_cleaning</span><span class="p">()</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">change_mode_to_safe</span><span class="p">()</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">adapter</span><span class="o">.</span><span class="n">turn_off_power</span><span class="p">()</span>
+    <span class="c1"># sleep(1.0)</span>
+    <span class="c1"># adapter.move(0, np.deg2rad(-10))</span>
+    <span class="c1"># sleep(1.0)</span>
+    <span class="c1"># adapter.move(0, np.deg2rad(10))</span>
+    <span class="c1"># sleep(1.0)</span>
+    <span class="c1"># adapter.move(0.1, np.deg2rad(0.0))</span>
+    <span class="c1"># sleep(1.0)</span>
+    <span class="c1"># adapter.move(-0.1, 0)</span>
+    <span class="c1"># sleep(1.0)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
