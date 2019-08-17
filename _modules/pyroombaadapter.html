@@ -43,8 +43,8 @@
 <span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
 
-<span class="kn">import</span> <span class="nn">byte_tool</span>
 <span class="kn">import</span> <span class="nn">serial</span>  <span class="c1"># pyserial</span>
+<span class="kn">import</span> <span class="nn">byte_tool</span>
 
 
 <div class="viewcode-block" id="PyRoombaAdapter"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter">[docs]</a><span class="k">class</span> <span class="nc">PyRoombaAdapter</span><span class="p">:</span>
@@ -76,6 +76,8 @@
            <span class="s2">&quot;Max&quot;</span><span class="p">:</span> <span class="mi">136</span><span class="p">,</span>
            <span class="s2">&quot;Drive&quot;</span><span class="p">:</span> <span class="mi">137</span><span class="p">,</span>
            <span class="s2">&quot;Moters&quot;</span><span class="p">:</span> <span class="mi">138</span><span class="p">,</span>
+           <span class="s2">&quot;Song&quot;</span><span class="p">:</span> <span class="mi">140</span><span class="p">,</span>
+           <span class="s2">&quot;Play&quot;</span><span class="p">:</span> <span class="mi">141</span><span class="p">,</span>
            <span class="s2">&quot;Sensors&quot;</span><span class="p">:</span> <span class="mi">142</span><span class="p">,</span>
            <span class="s2">&quot;Seek Dock&quot;</span><span class="p">:</span> <span class="mi">143</span><span class="p">,</span>
            <span class="s2">&quot;PWM Moters&quot;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span>
@@ -83,6 +85,7 @@
            <span class="s2">&quot;Drive PWM&quot;</span><span class="p">:</span> <span class="mi">146</span><span class="p">,</span>
            <span class="s2">&quot;Query List&quot;</span><span class="p">:</span> <span class="mi">149</span><span class="p">,</span>
            <span class="s2">&quot;Stream&quot;</span><span class="p">:</span> <span class="mi">148</span><span class="p">,</span>
+           <span class="s2">&quot;Buttons&quot;</span><span class="p">:</span> <span class="mi">165</span><span class="p">,</span>
            <span class="p">}</span>
 
     <span class="n">Packet_ID</span> <span class="o">=</span> <span class="p">{</span>
@@ -96,10 +99,6 @@
         <span class="s2">&quot;MIN_VELOCITY&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span>
         <span class="s2">&quot;MAX_VELOCITY&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
     <span class="p">}</span>
-
-<div class="viewcode-block" id="PyRoombaAdapter.Direction"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.Direction">[docs]</a>    <span class="k">class</span> <span class="nc">Direction</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-        <span class="n">clockwise</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">counter_clockwise</span> <span class="o">=</span> <span class="mi">2</span></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="o">=</span><span class="mi">115200</span><span class="p">,</span> <span class="n">time_out_sec</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">wheel_span_mm</span><span class="o">=</span><span class="mf">235.0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">WHEEL_SPAN</span> <span class="o">=</span> <span class="n">wheel_span_mm</span>
@@ -429,6 +428,157 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Moters&quot;</span><span class="p">],</span> <span class="n">cmd</span><span class="p">])</span></div>
 
+<div class="viewcode-block" id="PyRoombaAdapter.send_pwm_moters"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.send_pwm_moters">[docs]</a>    <span class="k">def</span> <span class="nf">send_pwm_moters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_brush_pwm</span><span class="p">,</span> <span class="n">side_brush_pwm</span><span class="p">,</span> <span class="n">vacuum_pwm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        send pwm moters</span>
+
+<span class="sd">        This command control the speed of Roomba’s main brush, side brush, and vacuum independently.</span>
+<span class="sd">        With each data byte, you specify the duty cycle for the low side driver (max 128).</span>
+<span class="sd">        For example, if you want to control a motor with 25% of battery voltage, choose a duty cycle of 128 * 25% = 32.</span>
+<span class="sd">        The main brush and side brush can be run in either direction.</span>
+<span class="sd">        The vacuum only runs forward. Positive speeds turn the motor in its default (cleaning) direction.</span>
+<span class="sd">        Default direction for the side brush is counterclockwise.</span>
+<span class="sd">        Default direction for the main brush/flapper is inward.</span>
+
+<span class="sd">        - Available in modes: Safe or Full</span>
+
+<span class="sd">        :param int main_brush_pwm: main brush PWM (-127 - 127)</span>
+
+<span class="sd">        :param int side_brush_pwm: side brush PWM (-127 - 127)</span>
+
+<span class="sd">        :param int vacuum_pwm: vacuum duty cycle (0 - 127)</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; adapter.send_pwm_moters(-55, 0, 0) # main brush is 55% PWM to opposite direction</span>
+<span class="sd">            &gt;&gt;&gt; sleep(2.0) # keep 2 sec</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">main_brush_pwm</span> <span class="o">=</span> <span class="n">byte_tool</span><span class="o">.</span><span class="n">get_1_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjust_min_max</span><span class="p">(</span><span class="n">main_brush_pwm</span><span class="p">,</span> <span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">))</span>
+        <span class="n">side_brush_pwm</span> <span class="o">=</span> <span class="n">byte_tool</span><span class="o">.</span><span class="n">get_1_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjust_min_max</span><span class="p">(</span><span class="n">side_brush_pwm</span><span class="p">,</span> <span class="o">-</span><span class="mi">127</span><span class="p">,</span> <span class="mi">127</span><span class="p">))</span>
+        <span class="n">vacuum_pwm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjust_min_max</span><span class="p">(</span><span class="n">vacuum_pwm</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;PWM Moters&quot;</span><span class="p">],</span> <span class="n">main_brush_pwm</span><span class="p">,</span> <span class="n">side_brush_pwm</span><span class="p">,</span> <span class="n">vacuum_pwm</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PyRoombaAdapter.send_buttons_cmd"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.send_buttons_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">send_buttons_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">spot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dock</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">minute</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clock</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        send buttons command</span>
+
+<span class="sd">        This command lets you push Roomba’s buttons. The buttons will automatically release after 1/6th of a second.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            - This API doesn&#39;t work on Roomba 690 Model</span>
+
+<span class="sd">        :param bool clean: clean button on</span>
+<span class="sd">        :param bool spot: spot button on</span>
+<span class="sd">        :param bool dock: dock button on</span>
+<span class="sd">        :param bool minute: minute button on</span>
+<span class="sd">        :param bool hour: hour button on</span>
+<span class="sd">        :param bool day: day button on</span>
+<span class="sd">        :param bool schedule: schedule button on</span>
+<span class="sd">        :param bool clock: clock button on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buttons</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># All initial bit is 0</span>
+        <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00000001</span>
+        <span class="k">if</span> <span class="n">spot</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00000010</span>
+        <span class="k">if</span> <span class="n">dock</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00000100</span>
+        <span class="k">if</span> <span class="n">minute</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00001000</span>
+        <span class="k">if</span> <span class="n">hour</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00010000</span>
+        <span class="k">if</span> <span class="n">day</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b00100000</span>
+        <span class="k">if</span> <span class="n">schedule</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b01000000</span>
+        <span class="k">if</span> <span class="n">clock</span><span class="p">:</span>
+            <span class="n">buttons</span> <span class="o">|=</span> <span class="mb">0b10000000</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Buttons&quot;</span><span class="p">],</span> <span class="n">buttons</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PyRoombaAdapter.send_song_cmd"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.send_song_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">send_song_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song_number</span><span class="p">,</span> <span class="n">song_length</span><span class="p">,</span> <span class="n">note_number_list</span><span class="p">,</span> <span class="n">note_duration_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send song command</span>
+
+<span class="sd">        This command lets you specify up to four songs to the OI that you can play at a later time.</span>
+<span class="sd">        Each song is associated with a song number.</span>
+<span class="sd">        The Play command uses the song number to identify your song selection.</span>
+<span class="sd">        Each song can contain up to sixteen notes.</span>
+<span class="sd">        Each note is associated with a note number that uses MIDI note definitions and a duration</span>
+<span class="sd">        that is specified in fractions of a second.</span>
+<span class="sd">        The number of data bytes varies, depending on the length of the song specified.</span>
+<span class="sd">        A one note song is specified by four data bytes.</span>
+<span class="sd">        For each additional note within a song, add two data bytes.</span>
+
+<span class="sd">        - Available in modes: Passive, Safe, or Full</span>
+
+<span class="sd">        :param int song_number: (0-4) The song number associated with the specific song.</span>
+<span class="sd">                        If you send a second Song command, using the same song number, the old song is overwritten.</span>
+
+<span class="sd">        :param int song_length: (1-16) The length of the song, according to the number of musical notes within the song.</span>
+
+<span class="sd">        :param list note_number_list: Note Number (31 – 127) The pitch of the musical note Roomba will play,</span>
+<span class="sd">                                      according to the MIDI note numbering scheme.</span>
+<span class="sd">                                      The lowest musical note that Roomba will play is Note #31.</span>
+<span class="sd">                                      Roomba considers all musical notes outside the range of 31 – 127 as rest notes,</span>
+<span class="sd">                                      and will make no sound during the duration of those notes.</span>
+
+<span class="sd">        :param list note_duration_list: Note Duration (0 – 255) The duration of a musical note,</span>
+<span class="sd">                                        in increments of 1/64th of a second. Example: a half-second long</span>
+<span class="sd">                                        musical note has a duration value of 32.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; # note names</span>
+<span class="sd">            &gt;&gt;&gt; f4 = 65</span>
+<span class="sd">            &gt;&gt;&gt; a4 = 69</span>
+<span class="sd">            &gt;&gt;&gt; c5 = 72</span>
+<span class="sd">            &gt;&gt;&gt; # note lengths</span>
+<span class="sd">            &gt;&gt;&gt; MEASURE = 160</span>
+<span class="sd">            &gt;&gt;&gt; HALF = int(MEASURE / 2)</span>
+<span class="sd">            &gt;&gt;&gt; Q = int(MEASURE / 4)</span>
+<span class="sd">            &gt;&gt;&gt; Ed = int(MEASURE * 3 / 16)</span>
+<span class="sd">            &gt;&gt;&gt; S = int(MEASURE / 16)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.send_song_cmd(0, 9,</span>
+<span class="sd">            &gt;&gt;&gt;             [a4, a4, a4, f4, c5, a4, f4, c5, a4],</span>
+<span class="sd">            &gt;&gt;&gt;             [Q, Q, Q, Ed, S, Q, Ed, S, HALF]) # set song</span>
+<span class="sd">            &gt;&gt;&gt; adapter.send_play_cmd(0) # play song</span>
+<span class="sd">            &gt;&gt;&gt; sleep(10.0) # keep playing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Song&quot;</span><span class="p">],</span> <span class="n">song_number</span><span class="p">,</span> <span class="n">song_length</span><span class="p">]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">note_number</span><span class="p">,</span> <span class="n">note_duration</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">note_number_list</span><span class="p">,</span> <span class="n">note_duration_list</span><span class="p">):</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note_number</span><span class="p">)</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note_duration</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PyRoombaAdapter.send_play_cmd"><a class="viewcode-back" href="../API.html#pyroombaadapter.PyRoombaAdapter.send_play_cmd">[docs]</a>    <span class="k">def</span> <span class="nf">send_play_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song_number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        send play command</span>
+
+<span class="sd">        This command lets you select a song to play from the songs added to Roomba using the Song command.</span>
+<span class="sd">        You must add one or more songs to Roomba using the Song command in order for the Play command to work.</span>
+
+<span class="sd">        :param int song_number: (0-4)</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; # note names</span>
+<span class="sd">            &gt;&gt;&gt; f4 = 65</span>
+<span class="sd">            &gt;&gt;&gt; a4 = 69</span>
+<span class="sd">            &gt;&gt;&gt; c5 = 72</span>
+<span class="sd">            &gt;&gt;&gt; # note lengths</span>
+<span class="sd">            &gt;&gt;&gt; MEASURE = 160</span>
+<span class="sd">            &gt;&gt;&gt; HALF = int(MEASURE / 2)</span>
+<span class="sd">            &gt;&gt;&gt; Q = int(MEASURE / 4)</span>
+<span class="sd">            &gt;&gt;&gt; Ed = int(MEASURE * 3 / 16)</span>
+<span class="sd">            &gt;&gt;&gt; S = int(MEASURE / 16)</span>
+<span class="sd">            &gt;&gt;&gt; adapter.send_song_cmd(0, 9,</span>
+<span class="sd">            &gt;&gt;&gt;             [a4, a4, a4, f4, c5, a4, f4, c5, a4],</span>
+<span class="sd">            &gt;&gt;&gt;             [Q, Q, Q, Ed, S, Q, Ed, S, HALF]) # set song</span>
+<span class="sd">            &gt;&gt;&gt; adapter.send_play_cmd(0) # play song</span>
+<span class="sd">            &gt;&gt;&gt; sleep(10.0) # keep playing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_send_cmd</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">CMD</span><span class="p">[</span><span class="s2">&quot;Play&quot;</span><span class="p">],</span> <span class="n">song_number</span><span class="p">])</span></div>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_connect_serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">bau_rate</span><span class="p">,</span> <span class="n">time_out</span><span class="p">):</span>
         <span class="n">serial_con</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="n">bau_rate</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">time_out</span><span class="p">)</span>
@@ -468,8 +618,10 @@
     <span class="c1"># adapter.move(0.1, np.deg2rad(-10))</span>
     <span class="c1"># adapter.send_drive_pwm(80, 80)</span>
     <span class="c1"># adapter.send_drive_pwm(-200, -200)</span>
-    <span class="n">adapter</span><span class="o">.</span><span class="n">send_moters_cmd</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-    <span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="c1"># adapter.send_moters_cmd(False, True, True, True, False)</span>
+    <span class="c1"># adapter.send_pwm_moters(-55, -25, 25)</span>
+    <span class="c1"># adapter.send_buttons_cmd(dock=True)</span>
+    <span class="c1"># sleep(1.0)</span>
 
     <span class="c1"># adapter.move(0, np.deg2rad(-10))</span>
     <span class="c1"># sleep(1.0)</span>
@@ -479,6 +631,24 @@
     <span class="c1"># sleep(1.0)</span>
     <span class="c1"># adapter.move(-0.1, 0)</span>
     <span class="c1"># sleep(1.0)</span>
+
+    <span class="c1"># Song test</span>
+    <span class="c1"># note names</span>
+    <span class="c1"># f4 = 65</span>
+    <span class="c1"># a4 = 69</span>
+    <span class="c1"># c5 = 72</span>
+    <span class="c1"># # note lengths</span>
+    <span class="c1"># MEASURE = 160</span>
+    <span class="c1"># HALF = int(MEASURE / 2)</span>
+    <span class="c1"># Q = int(MEASURE / 4)</span>
+    <span class="c1"># Ed = int(MEASURE * 3 / 16)</span>
+    <span class="c1"># S = int(MEASURE / 16)</span>
+    <span class="c1">#</span>
+    <span class="c1"># adapter.send_song_cmd(0, 9,</span>
+    <span class="c1">#                       [a4, a4, a4, f4, c5, a4, f4, c5, a4],</span>
+    <span class="c1">#                       [Q, Q, Q, Ed, S, Q, Ed, S, HALF])</span>
+    <span class="c1"># adapter.send_play_cmd(0)</span>
+    <span class="c1"># sleep(10.0)</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>

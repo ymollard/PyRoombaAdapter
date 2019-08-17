@@ -64,12 +64,6 @@
 </div>
 </dd>
 </dl>
-<dl class="class">
-<dt id="pyroombaadapter.PyRoombaAdapter.Direction">
-<em class="property">class </em><code class="descname">Direction</code><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.Direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.Direction" title="Permalink to this definition">¶</a></dt>
-<dd><p>An enumeration.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pyroombaadapter.PyRoombaAdapter.__del__">
 <code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.__del__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.__del__" title="Permalink to this definition">¶</a></dt>
@@ -157,6 +151,38 @@ If a safety condition occurs, Roomba reverts automatically to Passive mode.</p>
 </div>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.send_buttons_cmd">
+<code class="descname">send_buttons_cmd</code><span class="sig-paren">(</span><em>clean=False</em>, <em>spot=False</em>, <em>dock=False</em>, <em>minute=False</em>, <em>hour=False</em>, <em>day=False</em>, <em>schedule=False</em>, <em>clock=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.send_buttons_cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.send_buttons_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>send buttons command</p>
+<p>This command lets you push Roomba’s buttons. The buttons will automatically release after 1/6th of a second.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd><ul class="first last simple">
+<li>This API doesn’t work on Roomba 690 Model</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>clean</strong> (<em>bool</em>) – clean button on</li>
+<li><strong>spot</strong> (<em>bool</em>) – spot button on</li>
+<li><strong>dock</strong> (<em>bool</em>) – dock button on</li>
+<li><strong>minute</strong> (<em>bool</em>) – minute button on</li>
+<li><strong>hour</strong> (<em>bool</em>) – hour button on</li>
+<li><strong>day</strong> (<em>bool</em>) – day button on</li>
+<li><strong>schedule</strong> (<em>bool</em>) – schedule button on</li>
+<li><strong>clock</strong> (<em>bool</em>) – clock button on</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -289,6 +315,140 @@ The main brush and side brush can be run in either direction. The vacuum only ru
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_moters_cmd</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># side brush is on, and it rotates inward</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="c1"># keep 2 sec</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.send_play_cmd">
+<code class="descname">send_play_cmd</code><span class="sig-paren">(</span><em>song_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.send_play_cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.send_play_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>send play command</p>
+<p>This command lets you select a song to play from the songs added to Roomba using the Song command.
+You must add one or more songs to Roomba using the Song command in order for the Play command to work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>song_number</strong> (<em>int</em>) – (0-4)</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># note names</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f4</span> <span class="o">=</span> <span class="mi">65</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a4</span> <span class="o">=</span> <span class="mi">69</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c5</span> <span class="o">=</span> <span class="mi">72</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note lengths</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MEASURE</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HALF</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">[</span><span class="n">a4</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">c5</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">c5</span><span class="p">,</span> <span class="n">a4</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">[</span><span class="n">Q</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Ed</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Ed</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">HALF</span><span class="p">])</span> <span class="c1"># set song</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># play song</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span> <span class="c1"># keep playing</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.send_pwm_moters">
+<code class="descname">send_pwm_moters</code><span class="sig-paren">(</span><em>main_brush_pwm</em>, <em>side_brush_pwm</em>, <em>vacuum_pwm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.send_pwm_moters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.send_pwm_moters" title="Permalink to this definition">¶</a></dt>
+<dd><p>send pwm moters</p>
+<p>This command control the speed of Roomba’s main brush, side brush, and vacuum independently.
+With each data byte, you specify the duty cycle for the low side driver (max 128).
+For example, if you want to control a motor with 25% of battery voltage, choose a duty cycle of 128 * 25% = 32.
+The main brush and side brush can be run in either direction.
+The vacuum only runs forward. Positive speeds turn the motor in its default (cleaning) direction.
+Default direction for the side brush is counterclockwise.
+Default direction for the main brush/flapper is inward.</p>
+<ul class="simple">
+<li>Available in modes: Safe or Full</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>main_brush_pwm</strong> (<em>int</em>) – main brush PWM (-127 - 127)</li>
+<li><strong>side_brush_pwm</strong> (<em>int</em>) – side brush PWM (-127 - 127)</li>
+<li><strong>vacuum_pwm</strong> (<em>int</em>) – vacuum duty cycle (0 - 127)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_pwm_moters</span><span class="p">(</span><span class="o">-</span><span class="mi">55</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># main brush is 55% PWM to opposite direction</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="c1"># keep 2 sec</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyroombaadapter.PyRoombaAdapter.send_song_cmd">
+<code class="descname">send_song_cmd</code><span class="sig-paren">(</span><em>song_number</em>, <em>song_length</em>, <em>note_number_list</em>, <em>note_duration_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter.send_song_cmd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter.send_song_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send song command</p>
+<p>This command lets you specify up to four songs to the OI that you can play at a later time.
+Each song is associated with a song number.
+The Play command uses the song number to identify your song selection.
+Each song can contain up to sixteen notes.
+Each note is associated with a note number that uses MIDI note definitions and a duration
+that is specified in fractions of a second.
+The number of data bytes varies, depending on the length of the song specified.
+A one note song is specified by four data bytes.
+For each additional note within a song, add two data bytes.</p>
+<ul class="simple">
+<li>Available in modes: Passive, Safe, or Full</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>song_number</strong> (<em>int</em>) – (0-4) The song number associated with the specific song.
+If you send a second Song command, using the same song number, the old song is overwritten.</li>
+<li><strong>song_length</strong> (<em>int</em>) – (1-16) The length of the song, according to the number of musical notes within the song.</li>
+<li><strong>note_number_list</strong> (<em>list</em>) – Note Number (31 – 127) The pitch of the musical note Roomba will play,
+according to the MIDI note numbering scheme.
+The lowest musical note that Roomba will play is Note #31.
+Roomba considers all musical notes outside the range of 31 – 127 as rest notes,
+and will make no sound during the duration of those notes.</li>
+<li><strong>note_duration_list</strong> (<em>list</em>) – Note Duration (0 – 255) The duration of a musical note,
+in increments of 1/64th of a second. Example: a half-second long
+musical note has a duration value of 32.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Examples:</dt>
+<dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># note names</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f4</span> <span class="o">=</span> <span class="mi">65</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a4</span> <span class="o">=</span> <span class="mi">69</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c5</span> <span class="o">=</span> <span class="mi">72</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># note lengths</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MEASURE</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HALF</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Q</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">MEASURE</span> <span class="o">/</span> <span class="mi">16</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">[</span><span class="n">a4</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">c5</span><span class="p">,</span> <span class="n">a4</span><span class="p">,</span> <span class="n">f4</span><span class="p">,</span> <span class="n">c5</span><span class="p">,</span> <span class="n">a4</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">[</span><span class="n">Q</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Ed</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Ed</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">HALF</span><span class="p">])</span> <span class="c1"># set song</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># play song</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span> <span class="c1"># keep playing</span>
 </pre></div>
 </div>
 </dd>
