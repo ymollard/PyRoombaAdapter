@@ -34,21 +34,29 @@
             
   <div class="section" id="module-pyroombaadapter">
 <span id="api"></span><h1>API<a class="headerlink" href="#module-pyroombaadapter" title="Permalink to this headline">¶</a></h1>
-<p>A Python module for Roomba Open Interface</p>
+<p>A Python adapter module for Roomba Open Interface</p>
+<p>This module is based on the document: iRobot® Roomba 500 Open Interface (OI) Specification
+- Link <a class="reference external" href="https://www.irobot.lv/uploaded_files/File/iRobot_Roomba_500_Open_Interface_Spec.pdf">https://www.irobot.lv/uploaded_files/File/iRobot_Roomba_500_Open_Interface_Spec.pdf</a></p>
 <dl class="class">
 <dt id="pyroombaadapter.PyRoombaAdapter">
 <em class="property">class </em><code class="descclassname">pyroombaadapter.</code><code class="descname">PyRoombaAdapter</code><span class="sig-paren">(</span><em>port</em>, <em>bau_rate=115200</em>, <em>time_out_sec=1.0</em>, <em>wheel_span_mm=235.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyroombaadapter.html#PyRoombaAdapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyroombaadapter.PyRoombaAdapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adapter class for Roomba Open Interface</p>
 <p>The constructor connects serial port and change the mode to safe mode</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>port: Serial port string</li>
-<li>bau_rate (default=115200): bau rate of serial connection</li>
-<li>time_out_sec (default=1.0) : read time out of serial connection [sec]</li>
-<li>wheel_span_mm (default=235.0): wheel span of Roomba [mm]</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>port</strong> (<em>string</em>) – Serial port path</li>
+<li><strong>bau_rate</strong> (<em>int</em>) – bau rate of serial connection (default=115200)</li>
+<li><strong>time_out_sec</strong> (<em>float</em>) – read time out of serial connection [sec] (default=1.0)</li>
+<li><strong>wheel_span_mm</strong> (<em>float</em>) – wheel span of Roomba [mm]  (default=235.0)</li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
@@ -124,13 +132,19 @@ If a safety condition occurs, Roomba reverts automatically to Passive mode.</p>
 </dl>
 </li>
 </ul>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>velocity: velocity (m/sec)</li>
-<li>yaw_rate: yaw rate (rad/sec)</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>velocity</strong> (<em>float</em>) – velocity (m/sec)</li>
+<li><strong>yaw_rate</strong> (<em>float</em>) – yaw rate (rad/sec)</li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">time</span>
@@ -155,16 +169,19 @@ A Drive command with a positive velocity and a positive radius makes Roomba driv
 A negative radius makes Roomba turn toward the right.
 Special cases for the radius make Roomba turn in place or drive straight.
 A negative velocity makes Roomba drive backward.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>roomba_mm_sec: the average velocity of the drive wheels in millimeters per second (mm/s)
-(-500 – 500 mm/s)</li>
-<li>roomba_radius_mm: the radius in millimeters at which Roomba will turn.
-(-2000 – 2000 mm)</li>
-<li>turn_dir: turning direction, it should be CW:clock wise or CCW: counter clock wise</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>roomba_mm_sec</strong> (<em>float</em>) – the average velocity of the drive wheels in millimeters per second (-500 – 500 mm/s)</li>
+<li><strong>roomba_radius_mm</strong> (<em>float</em>) – the radius in millimeters at which Roomba will turn. (-2000 – 2000 mm)</li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
@@ -185,19 +202,23 @@ A positive velocity makes that wheel drive forward, while a negative velocity ma
 <ul class="simple">
 <li>Available in modes: Safe or Full</li>
 </ul>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>right_mm_sec: the average velocity of the right drive wheels in millimeters per second (mm/s)
-(-500 – 500 mm/s)</li>
-<li>left_mm_sec: the average velocity of the left drive wheels in millimeters per second (mm/s)
-(-500 – 500 mm/s)</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>right_mm_sec</strong> (<em>float</em>) – the velocity of the right drive wheels in millimeters per second (-500 – 500 mm/s)</li>
+<li><strong>left_mm_sec</strong> (<em>float</em>) – the velocity of the left drive wheels in millimeters per second (-500 – 500 mm/s)</li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;&gt; adapter.send_drive_direct(10, 100) # move right forward</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_drive_direct</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="c1"># move right forward</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="c1"># keep 2 sec</span>
 </pre></div>
 </div>
@@ -215,13 +236,19 @@ A positive PWM makes that wheel drive forward, while a negative PWM makes it dri
 <ul class="simple">
 <li>Available in modes: Safe or Full</li>
 </ul>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><ul class="first last simple">
-<li>right_pwm: Right wheel PWM (-255 – 255)</li>
-<li>left_pwm: Left wheel PWM (-255 - 255)</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>right_pwm</strong> (<em>int</em>) – Right wheel PWM (-255 – 255)</li>
+<li><strong>left_pwm</strong> (<em>int</em>) – Left wheel PWM (-255 - 255)</li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
@@ -260,7 +287,7 @@ The main brush and side brush can be run in either direction. The vacuum only ru
 <dt>Examples:</dt>
 <dd><div class="first last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_moters_cmd</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># side brush is on, and it rotate inward</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adapter</span><span class="o">.</span><span class="n">send_moters_cmd</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="c1"># side brush is on, and it rotates inward</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sleep</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="c1"># keep 2 sec</span>
 </pre></div>
 </div>
@@ -384,6 +411,13 @@ The main brush and side brush can be run in either direction. The vacuum only ru
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=AtsushiSakai&repo=PyRoombaAdapter&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
@@ -415,7 +449,15 @@ The main brush and side brush can be run in either direction. The vacuum only ru
 <script type="text/javascript">$('#searchbox').show(0);</script>
 
 
+<h3 class="donation">Donate/support</h3>
 
+
+
+<p>
+<a class="badge" href="https://www.patreon.com/myenigma">
+<img src="https://img.shields.io/badge/donate-%E2%9D%A4%C2%A0-ff69b4.svg?style=flat" alt="Donate">
+</a>
+</p>
 
 
 
@@ -437,6 +479,10 @@ The main brush and side brush can be run in either direction. The vacuum only ru
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/AtsushiSakai/PyRoombaAdapter" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     
