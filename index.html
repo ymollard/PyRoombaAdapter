@@ -49,8 +49,10 @@ Specification</a></li>
 </div>
 <div class="section" id="install">
 <h1>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h1>
-<p>You can use pip to install it.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install PyRoombaAdapter
+<p>You can use setup.py to install it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/AtsushiSakai/PyRoombaAdapter.git
+
+$ sudo python PyRoombaAdapter/setup.py install
 </pre></div>
 </div>
 </div>
@@ -69,8 +71,119 @@ Specification</a></li>
 documentation!</a></li>
 </ul>
 </div>
-<div class="section" id="simple-usage">
-<h1>Simple usage<a class="headerlink" href="#simple-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage-examples">
+<h1>Usage examples<a class="headerlink" href="#usage-examples" title="Permalink to this headline">¶</a></h1>
+<p>All examples are in examples directory.</p>
+<p>Click each image to see each example movie.</p>
+<div class="section" id="go-and-back-example">
+<h2>Go and back example<a class="headerlink" href="#go-and-back-example" title="Permalink to this headline">¶</a></h2>
+<p>This example uses “move” API.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://atsushisakai.github.io/PyRoombaAdapter/API.html#pyroombaadapter.PyRoombaAdapter.move">move
+API</a></li>
+</ul>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Go and back example with roomba</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyroombaadapter</span> <span class="k">import</span> <span class="n">PyRoombaAdapter</span>
+
+<span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>  <span class="c1"># go straight</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">))</span>  <span class="c1"># turn right</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>  <span class="c1"># go straight</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>  <span class="c1"># turn left</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">6.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="play-song1">
+<h2>Play song1<a class="headerlink" href="#play-song1" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=0XqpQq7PQ8I"><img alt="image0" src="https://img.youtube.com/vi/0XqpQq7PQ8I/0.jpg" /></a></p>
+<p>This example uses “send_song_cmd” and “send_play_cmd” API.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://atsushisakai.github.io/PyRoombaAdapter/API.html#pyroombaadapter.PyRoombaAdapter.send_song_cmd">send_song_cmd
+API</a></li>
+<li><a class="reference external" href="https://atsushisakai.github.io/PyRoombaAdapter/API.html#pyroombaadapter.PyRoombaAdapter.send_play_cmd">send_play_cmd
+API</a></li>
+</ul>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Play Darth Vader song</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+
+<span class="kn">from</span> <span class="nn">pyroombaadapter</span> <span class="k">import</span> <span class="n">PyRoombaAdapter</span>
+
+<span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+                      <span class="p">[</span><span class="mi">69</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">69</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">80</span><span class="p">])</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">10.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="play-song2">
+<h2>Play song2<a class="headerlink" href="#play-song2" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.youtube.com/watch?v=nYstniMkJo0"><img alt="image1" src="https://img.youtube.com/vi/nYstniMkJo0/0.jpg" /></a></p>
+<p>This example uses “send_song_cmd” and “send_play_cmd” API.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://atsushisakai.github.io/PyRoombaAdapter/API.html#pyroombaadapter.PyRoombaAdapter.send_song_cmd">send_song_cmd
+API</a></li>
+<li><a class="reference external" href="https://atsushisakai.github.io/PyRoombaAdapter/API.html#pyroombaadapter.PyRoombaAdapter.send_play_cmd">send_play_cmd
+API</a></li>
+</ul>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Play namidaga kirari by spitz</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+
+<span class="kn">from</span> <span class="nn">pyroombaadapter</span> <span class="k">import</span> <span class="n">PyRoombaAdapter</span>
+
+<span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;/dev/ttyUSB0&quot;</span>
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">PyRoombaAdapter</span><span class="p">(</span><span class="n">PORT</span><span class="p">)</span>
+
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span>
+                      <span class="p">[</span><span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">66</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span>
+                      <span class="p">[</span><span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span>
+                      <span class="p">[</span><span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">66</span><span class="p">,</span> <span class="mi">71</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_song_cmd</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span>
+                      <span class="p">[</span><span class="mi">71</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">62</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+
+<span class="n">sleep</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="n">adapter</span><span class="o">.</span><span class="n">send_play_cmd</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">sleep</span><span class="p">(</span><span class="mf">4.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="contribution">
 <h1>Contribution<a class="headerlink" href="#contribution" title="Permalink to this headline">¶</a></h1>
