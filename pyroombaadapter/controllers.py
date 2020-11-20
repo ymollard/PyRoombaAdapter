@@ -39,7 +39,7 @@ class Controller(object):
         """Receives a message from the SCI"""
         raise NotImplementedError()
 
-    def read(self, num_bytes=999999):
+    def read(self, num_bytes):
         """Read a string of 'num_bytes' bytes from the robot."""
         logging.debug('Attempting to read %d bytes from SCI port.', num_bytes)
         with self.lock:
@@ -50,7 +50,7 @@ class Controller(object):
                 'Error reading from SCI port. No data.')
         if len(data) != num_bytes:
             raise PyRobotControllerError(
-                'Error reading from SCI port. Wrong data length.')
+                'Error reading from SCI port. Wrong data length: received {}B instead of {}B'.format(len(data), num_bytes))
         return data
 
     def flush_input(self):

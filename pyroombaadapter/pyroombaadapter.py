@@ -6,9 +6,11 @@ This module is based on the document: iRobot® Roomba 500 Open Interface (OI) Sp
 
 """
 from .controllers import PyRobotControllerError, BluetoothController, SerialController
+from .tables import CMD, SENSORS, SIZES, PARAMS
 import re
 import math
 import sys
+import struct
 from time import sleep
 
 class PyRoombaAdapter:
@@ -30,40 +32,6 @@ class PyRoombaAdapter:
         >>> adapter = PyRoombaAdapter("/dev/ttyUSB0")
 
     """
-    CMD = {"Start": 128,
-           "Baud": 129,
-           "Safe": 131,
-           "Full": 132,
-           "Power": 133,
-           "Spot": 134,
-           "Clean": 135,
-           "Max": 136,
-           "Drive": 137,
-           "Moters": 138,
-           "Song": 140,
-           "Play": 141,
-           "Sensors": 142,
-           "Seek Dock": 143,
-           "PWM Moters": 144,
-           "Drive Direct": 145,
-           "Drive PWM": 146,
-           "Query List": 149,
-           "Stream": 148,
-           "Buttons": 165,
-           }
-
-    Packet_ID = {
-        "OI Mode": 35,
-    }
-
-    PARAMS = {
-        "STRAIGHT_RADIUS": 32768,
-        "MIN_RADIUS": -2000,
-        "MAX_RADIUS": 2000,
-        "MIN_VELOCITY": -500,
-        "MAX_VELOCITY": 500,
-    }
-
     def __init__(self, port, bau_rate=115200, time_out_sec=1., wheel_span_mm=235.0):
         self.WHEEL_SPAN = wheel_span_mm
         
@@ -82,7 +50,7 @@ class PyRoombaAdapter:
         The Destructor make Roomba move to passive mode and close serial connection
         """
         # disconnect sequence
-        self._send_cmd(self.CMD["Start"])  # move to passive mode
+        self._send_cmd(CMD["Start"])  # move to passive mode
         sleep(0.1)
         self.serial_con.close()
 
@@ -98,8 +66,8 @@ class PyRoombaAdapter:
             >>> adapter = PyRoombaAdapter(PORT)
             >>> adapter.start_cleaning()
         """
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Clean"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Clean"])
 
     def start_max_cleaning(self):
         """
@@ -113,8 +81,8 @@ class PyRoombaAdapter:
             >>> adapter = PyRoombaAdapter(PORT)
             >>> adapter.start_max_cleaning()
         """
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Max"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Max"])
 
     def start_spot_cleaning(self):
         """
@@ -128,8 +96,8 @@ class PyRoombaAdapter:
             >>> adapter = PyRoombaAdapter(PORT)
             >>> adapter.start_spot_cleaning()
         """
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Spot"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Spot"])
 
     def start_seek_dock(self):
         """
@@ -143,8 +111,8 @@ class PyRoombaAdapter:
             >>> adapter = PyRoombaAdapter(PORT)
             >>> adapter.start_seek_dock()
         """
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Seek Dock"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Seek Dock"])
 
     def change_mode_to_passive(self):
         """
@@ -154,7 +122,7 @@ class PyRoombaAdapter:
 
         - Available in modes: Passive, Safe, or Full
         """
-        self._send_cmd(self.CMD["Start"])
+        self._send_cmd(CMD["Start"])
 
         # TODO implement
         # check mode
@@ -170,8 +138,8 @@ class PyRoombaAdapter:
         - Available in modes: Passive, Safe, or Full
         """
         # send command
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Safe"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Safe"])
 
         # TODO implement
         # check mode
@@ -188,8 +156,8 @@ class PyRoombaAdapter:
         - Available in modes: Passive, Safe, or Full
         """
         # send command
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Full"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Full"])
 
         # TODO implement
         # check mode
@@ -209,18 +177,27 @@ class PyRoombaAdapter:
             >>> adapter.turn_off_power()
         """
         # send command
-        self._send_cmd(self.CMD["Start"])
-        self._send_cmd(self.CMD["Power"])
+        self._send_cmd(CMD["Start"])
+        self._send_cmd(CMD["Power"])
 
-    def request_data(self, request_id_list):
+    def sensors(self, name="all"):       
+        self._send_cmd(CMD["Sensors"])
+        if name == "all":
+            packet_id = 100 # 100 means "all 58 sensors"
+            sensor_fmt = SENSORS.values()
+            names = SENSORS.keys()
+        else:
+            packet_id = SENSORS[name][0]
+            sensor_fmt = [SENSORS[name]]
+            names = [name]
+        self._send_cmd(packet_id)
+        sleep(0.5)
+        fmt = "".join(map(lambda x: x[1], sensor_fmt))
+        length = sum([SIZES[char] for char in fmt])
+        data = self.serial_con.read(length)
+        typed_data = struct.unpack("<" + fmt, data)
+        return dict(zip(names, typed_data))
 
-        if len(request_id_list) == 1:  # single packet
-            self._send_cmd(self.CMD["Start"])
-            self._send_cmd(self.CMD["Sensors"])
-            self._send_cmd(request_id_list[0])
-            sleep(0.5)
-            print("re:", self.serial_con.read())
-            sleep(0.5)
 
     def move(self, velocity, yaw_rate):
         """
@@ -258,7 +235,7 @@ class PyRoombaAdapter:
                 radius_mm = -1
         elif yaw_rate == 0:
             vel_mm_sec = velocity * 1000.0  # m/s -> mm/s
-            radius_mm = self.PARAMS["STRAIGHT_RADIUS"]
+            radius_mm = PARAMS["STRAIGHT_RADIUS"]
         else:
             vel_mm_sec = velocity * 1000.0  # m/s -> mm/s
             radius_mm = vel_mm_sec / yaw_rate
@@ -288,14 +265,14 @@ class PyRoombaAdapter:
         """
         # print(roomba_mm_sec, roomba_radius_mm, turn_dir)
 
-        roomba_mm_sec = self._adjust_min_max(roomba_mm_sec, self.PARAMS["MIN_VELOCITY"], self.PARAMS["MAX_VELOCITY"])
+        roomba_mm_sec = self._adjust_min_max(roomba_mm_sec, PARAMS["MIN_VELOCITY"], PARAMS["MAX_VELOCITY"])
         velHighVal, velLowVal = self._get_2_bytes(roomba_mm_sec)
 
-        roomba_radius_mm = self._adjust_min_max(roomba_radius_mm, self.PARAMS["MIN_RADIUS"], self.PARAMS["MAX_RADIUS"])
+        roomba_radius_mm = self._adjust_min_max(roomba_radius_mm, PARAMS["MIN_RADIUS"], PARAMS["MAX_RADIUS"])
         radiusHighVal, radiusLowVal = self._get_2_bytes(roomba_radius_mm)
 
         # send these bytes and set the stored velocities
-        self._send_cmd([self.CMD["Drive"], velHighVal, velLowVal, radiusHighVal, radiusLowVal])
+        self._send_cmd([CMD["Drive"], velHighVal, velLowVal, radiusHighVal, radiusLowVal])
 
     def send_drive_direct(self, right_mm_sec, left_mm_sec):
         """
@@ -316,14 +293,14 @@ class PyRoombaAdapter:
             >>> adapter.send_drive_direct(10, 100) # move right forward
             >>> sleep(2.0) # keep 2 sec
         """
-        right_mm_sec = self._adjust_min_max(right_mm_sec, self.PARAMS["MIN_VELOCITY"], self.PARAMS["MAX_VELOCITY"])
-        right_high, right_low = byte_tool.get_2_bytes(right_mm_sec)
+        right_mm_sec = self._adjust_min_max(right_mm_sec, PARAMS["MIN_VELOCITY"], PARAMS["MAX_VELOCITY"])
+        right_high, right_low = self._get_2_bytes(right_mm_sec)
 
-        left_mm_sec = self._adjust_min_max(left_mm_sec, self.PARAMS["MIN_VELOCITY"], self.PARAMS["MAX_VELOCITY"])
-        left_high, left_low = byte_tool.get_2_bytes(left_mm_sec)
+        left_mm_sec = self._adjust_min_max(left_mm_sec, PARAMS["MIN_VELOCITY"], PARAMS["MAX_VELOCITY"])
+        left_high, left_low = self._get_2_bytes(left_mm_sec)
 
         # send these bytes and set the stored velocities
-        self._send_cmd([self.CMD["Drive Direct"], right_high, right_low, left_high, left_low])
+        self._send_cmd([CMD["Drive Direct"], right_high, right_low, left_high, left_low])
 
     def send_drive_pwm(self, right_pwm, left_pwm):
         """
@@ -346,13 +323,13 @@ class PyRoombaAdapter:
             >>> sleep(2.0) # keep 2 sec
         """
         right_pwm = self._adjust_min_max(right_pwm, -255, 255)
-        right_high, right_low = byte_tool.get_2_bytes(right_pwm)
+        right_high, right_low = self._get_2_bytes(right_pwm)
 
         left_pwm = self._adjust_min_max(left_pwm, -255, 255)
-        left_high, left_low = byte_tool.get_2_bytes(left_pwm)
+        left_high, left_low = self._get_2_bytes(left_pwm)
 
         # send these bytes and set the stored velocities
-        self._send_cmd([self.CMD["Drive PWM"], right_high, right_low, left_high, left_low])
+        self._send_cmd([CMD["Drive PWM"], right_high, right_low, left_high, left_low])
 
     def send_moters_cmd(self, main_brush_on, main_brush_direction_is_ccw,
                         side_brush_on, side_brush_direction_is_inward,
@@ -395,7 +372,7 @@ class PyRoombaAdapter:
         if not main_brush_direction_is_ccw:
             cmd |= 0b00010000
 
-        self._send_cmd([self.CMD["Moters"], cmd])
+        self._send_cmd([CMD["Moters"], cmd])
 
     def send_pwm_moters(self, main_brush_pwm, side_brush_pwm, vacuum_pwm):
         """
@@ -425,7 +402,7 @@ class PyRoombaAdapter:
         main_brush_pwm = self._get_1_bytes(self._adjust_min_max(main_brush_pwm, -127, 127))
         side_brush_pwm = self._get_1_bytes(self._adjust_min_max(side_brush_pwm, -127, 127))
         vacuum_pwm = self._adjust_min_max(vacuum_pwm, 0, 127)
-        self._send_cmd([self.CMD["PWM Moters"], main_brush_pwm, side_brush_pwm, vacuum_pwm])
+        self._send_cmd([CMD["PWM Moters"], main_brush_pwm, side_brush_pwm, vacuum_pwm])
 
     def send_buttons_cmd(self, clean=False, spot=False, dock=False,
                          minute=False, hour=False, day=False, schedule=False, clock=False):
@@ -464,9 +441,9 @@ class PyRoombaAdapter:
         if clock:
             buttons |= 0b10000000
 
-        self._send_cmd([self.CMD["Buttons"], buttons])
+        self._send_cmd([CMD["Buttons"], buttons])
 
-    def send_song_cmd(self, song_number, song_length, note_number_list, note_duration_list):
+    def send_song_cmd(self, song_number, note_number_list, note_duration_list):
         """
         Send song command
 
@@ -484,8 +461,6 @@ class PyRoombaAdapter:
 
         :param int song_number: (0-4) The song number associated with the specific song.
                         If you send a second Song command, using the same song number, the old song is overwritten.
-
-        :param int song_length: (1-16) The length of the song, according to the number of musical notes within the song.
 
         :param list note_number_list: Note Number (31 – 127) The pitch of the musical note Roomba will play,
                                       according to the MIDI note numbering scheme.
@@ -509,13 +484,14 @@ class PyRoombaAdapter:
             >>> Q = int(MEASURE / 4)
             >>> Ed = int(MEASURE * 3 / 16)
             >>> S = int(MEASURE / 16)
-            >>> adapter.send_song_cmd(0, 9,
+            >>> adapter.send_song_cmd(0,
             >>>             [a4, a4, a4, f4, c5, a4, f4, c5, a4],
             >>>             [Q, Q, Q, Ed, S, Q, Ed, S, HALF]) # set song
             >>> adapter.send_play_cmd(0) # play song
             >>> sleep(10.0) # keep playing
         """
-        cmd = [self.CMD["Song"], song_number, song_length]
+        song_length = len(note_number_list)
+        cmd = [CMD["Song"], song_number, song_length]
         for (note_number, note_duration) in zip(note_number_list, note_duration_list):
             cmd.append(note_number)
             cmd.append(note_duration)
@@ -542,13 +518,13 @@ class PyRoombaAdapter:
             >>> Q = int(MEASURE / 4)
             >>> Ed = int(MEASURE * 3 / 16)
             >>> S = int(MEASURE / 16)
-            >>> adapter.send_song_cmd(0, 9,
+            >>> adapter.send_song_cmd(0,
             >>>             [a4, a4, a4, f4, c5, a4, f4, c5, a4],
             >>>             [Q, Q, Q, Ed, S, Q, Ed, S, HALF]) # set song
             >>> adapter.send_play_cmd(0) # play song
             >>> sleep(10.0) # keep playing
         """
-        self._send_cmd([self.CMD["Play"], song_number])
+        self._send_cmd([CMD["Play"], song_number])
 
     @staticmethod
     def _adjust_min_max(val, min_val, max_val):

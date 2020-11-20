@@ -1,1 +1,1 @@
-from pyroombaadapter.pyroombaadapter import *
+from pyroombaadapter.pyroombaadapter import PyRoombaAdapter
