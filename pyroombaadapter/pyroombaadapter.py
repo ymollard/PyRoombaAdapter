@@ -5,12 +5,11 @@ This module is based on the document: iRobot® Roomba 500 Open Interface (OI) Sp
 - Link https://www.irobot.lv/uploaded_files/File/iRobot_Roomba_500_Open_Interface_Spec.pdf
 
 """
+from .controllers import PyRobotControllerError, BluetoothController, SerialController
+import re
 import math
 import sys
 from time import sleep
-
-import serial  # pyserial
-
 
 class PyRoombaAdapter:
     """
@@ -18,7 +17,7 @@ class PyRoombaAdapter:
 
     The constructor connects serial port and change the mode to safe mode
 
-    :param string port: Serial port path
+    :param string port: Serial port path or MAC address of the Bluetooth adapter for Roomba
 
     :param int bau_rate: bau rate of serial connection (default=115200)
 
@@ -27,8 +26,8 @@ class PyRoombaAdapter:
     :param float wheel_span_mm: wheel span of Roomba [mm]  (default=235.0)
 
     Examples:
-        >>> PORT = "/dev/ttyUSB0"
-        >>> adapter = PyRoombaAdapter(PORT)
+        >>> adapter = PyRoombaAdapter("00:06:66:07:0F:0C")
+        >>> adapter = PyRoombaAdapter("/dev/ttyUSB0")
 
     """
     CMD = {"Start": 128,
@@ -67,11 +66,11 @@ class PyRoombaAdapter:
 
     def __init__(self, port, bau_rate=115200, time_out_sec=1., wheel_span_mm=235.0):
         self.WHEEL_SPAN = wheel_span_mm
-        try:
-            self.serial_con = self._connect_serial(port, bau_rate, time_out_sec)
-        except SerialException: 
-            print("Cannot find serial port. Plase reconnect it.")
-            sys.exit(1)
+        
+        if re.match(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", port):
+            self.serial_con = BluetoothController(port)
+        else:
+            self.serial_con = SerialController(port, baudrate=bau_rate, timeout=time_out_sec)
 
         self.change_mode_to_safe()  # default mode is safe mode
         sleep(1.0)
@@ -552,15 +551,6 @@ class PyRoombaAdapter:
         self._send_cmd([self.CMD["Play"], song_number])
 
     @staticmethod
-    def _connect_serial(port, bau_rate, time_out):
-        serial_con = serial.Serial(port, baudrate=bau_rate, timeout=time_out)
-        if serial_con.isOpen():
-            print('Serial port is open, presumably to a roomba...')
-        else:
-            print('Serial port did NOT open')
-        return serial_con
-
-    @staticmethod
     def _adjust_min_max(val, min_val, max_val):
 
         # integer cast
@@ -603,9 +593,9 @@ class PyRoombaAdapter:
 
     def _send_cmd(self, cmd):
         if type(cmd) == list:  # command list
-            self.serial_con.write(bytes(cmd))
+            self.serial_con.send(bytes(cmd))
         else:  # one command
-            self.serial_con.write(bytes([cmd]))
+            self.serial_con.send(bytes([cmd]))
 
 
 def main():
